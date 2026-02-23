@@ -6,6 +6,7 @@ import ScreenShell from "@/components/ScreenShell";
 import TopBar from "@/components/TopBar";
 import SessionPlayer from "@/components/SessionPlayer";
 import CheckIn from "@/components/CheckIn";
+import PillButton from "@/components/PillButton";
 import { useAppState } from "@/lib/store";
 
 export default function SessionPage() {
@@ -91,12 +92,11 @@ export default function SessionPage() {
           <p className="text-sm text-muted mb-6">
             Day {dayNum} is done. Your progress has been saved.
           </p>
-          <button
-            onClick={() => router.push("/plan/full")}
-            className="text-gold font-semibold hover:underline"
-          >
-            Back to Plan
-          </button>
+          <div className="w-full max-w-sm">
+            <PillButton onClick={() => router.push("/plan/full")}>
+              Back to Plan
+            </PillButton>
+          </div>
         </div>
       )}
     </ScreenShell>
