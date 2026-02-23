@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   AppContext,
   getPlan,
@@ -18,26 +18,43 @@ import {
 } from "@/lib/store";
 import type { GymPersonalizedPlan, ProgressState, InputJSON } from "@/lib/types";
 
-export default function AppProvider({ children }: { children: React.ReactNode }) {
-  const [plan, setPlanLocal] = useState<GymPersonalizedPlan | null>(null);
-  const [isPremium, setIsPremiumLocal] = useState(false);
-  const [progress, setProgressLocal] = useState<ProgressState>({
-    completedDays: {},
-    checkins: {},
-    lastOpenedDay: 1,
-  });
-  const [email, setEmailLocal] = useState("");
-  const [inputJson, setInputJsonLocal] = useState<InputJSON | null>(null);
-  const [mounted, setMounted] = useState(false);
+const defaultProgress: ProgressState = {
+  completedDays: { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": false },
+  checkins: {},
+  lastOpenedDay: 1,
+};
 
-  useEffect(() => {
-    setPlanLocal(getPlan());
-    setIsPremiumLocal(getIsPremium());
-    setProgressLocal(getProgress());
-    setEmailLocal(getEmail());
-    setInputJsonLocal(getInputJson());
-    setMounted(true);
-  }, []);
+function getInitialPlan(): GymPersonalizedPlan | null {
+  if (typeof window === "undefined") return null;
+  return getPlan();
+}
+
+function getInitialPremium(): boolean {
+  if (typeof window === "undefined") return false;
+  return getIsPremium();
+}
+
+function getInitialProgress(): ProgressState {
+  if (typeof window === "undefined") return defaultProgress;
+  return getProgress();
+}
+
+function getInitialEmail(): string {
+  if (typeof window === "undefined") return "";
+  return getEmail();
+}
+
+function getInitialInputJson(): InputJSON | null {
+  if (typeof window === "undefined") return null;
+  return getInputJson();
+}
+
+export default function AppProvider({ children }: { children: React.ReactNode }) {
+  const [plan, setPlanLocal] = useState<GymPersonalizedPlan | null>(getInitialPlan);
+  const [isPremium, setIsPremiumLocal] = useState(getInitialPremium);
+  const [progress, setProgressLocal] = useState<ProgressState>(getInitialProgress);
+  const [email, setEmailLocal] = useState(getInitialEmail);
+  const [inputJson, setInputJsonLocal] = useState<InputJSON | null>(getInitialInputJson);
 
   const setPlan = useCallback((p: GymPersonalizedPlan) => {
     storeSavePlan(p);
@@ -73,18 +90,10 @@ export default function AppProvider({ children }: { children: React.ReactNode })
     resetAll();
     setPlanLocal(null);
     setIsPremiumLocal(false);
-    setProgressLocal({ completedDays: {}, checkins: {}, lastOpenedDay: 1 });
+    setProgressLocal(defaultProgress);
     setEmailLocal("");
     setInputJsonLocal(null);
   }, []);
-
-  if (!mounted) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <AppContext.Provider
