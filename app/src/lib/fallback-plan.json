@@ -1,0 +1,210 @@
+{
+  "program": {
+    "title": "Your 7-Day Focus & Clarity Program",
+    "summary": "A structured daily program designed to help you build focus, reduce distractions, and create lasting habits — one step at a time.",
+    "time_budget_minutes": 15,
+    "disclaimer": "This program is for personal development purposes only. It is not a substitute for professional advice."
+  },
+  "insights": [
+    {
+      "icon": "🎯",
+      "title": "Structure Drives Progress",
+      "description": "Research shows that having a clear daily structure increases follow-through by up to 42%."
+    },
+    {
+      "icon": "🧠",
+      "title": "Micro-Commitments Work",
+      "description": "Starting with just 10-15 minutes daily builds neural pathways that make habits automatic."
+    },
+    {
+      "icon": "🔄",
+      "title": "Reflection Accelerates Growth",
+      "description": "People who reflect after each session show 23% faster improvement than those who don't."
+    }
+  ],
+  "days": [
+    {
+      "day_number": 1,
+      "is_locked": false,
+      "title": "Foundation Day",
+      "objective": "Set your baseline and create your focus environment",
+      "workout": {
+        "steps": [
+          { "step_number": 1, "title": "Environment Scan", "description": "Identify and remove the top 3 distractions from your workspace.", "duration_minutes": 3 },
+          { "step_number": 2, "title": "Priority Mapping", "description": "Write down your single most important task for today.", "duration_minutes": 2 },
+          { "step_number": 3, "title": "Focus Block Setup", "description": "Set a timer for 10 minutes and work on your priority task without interruption.", "duration_minutes": 10 },
+          { "step_number": 4, "title": "Quick Reflection", "description": "Rate your focus level and note what worked.", "duration_minutes": 2 }
+        ]
+      },
+      "guided_session": {
+        "total_duration_seconds": 150,
+        "script": [
+          { "type": "text", "content": "Welcome to Day 1. Today is about establishing your foundation. Take a deep breath.", "duration_seconds": 15 },
+          { "type": "breathing", "content": "Breathe in for 4 counts... hold for 4... exhale for 6. Repeat twice.", "duration_seconds": 30 },
+          { "type": "text", "content": "Look around your workspace. Notice what pulls your attention away from your goals.", "duration_seconds": 15 },
+          { "type": "action", "content": "Remove or silence one distraction right now. Put your phone in another room or close unnecessary tabs.", "duration_seconds": 30 },
+          { "type": "text", "content": "Now, think about the one thing that would make today meaningful. Not five things — just one.", "duration_seconds": 15 },
+          { "type": "reflection", "content": "Write it down. This is your anchor for today. When you feel pulled in other directions, come back to this.", "duration_seconds": 30 },
+          { "type": "text", "content": "You've set your foundation. Tomorrow we build on this. Great start.", "duration_seconds": 15 }
+        ]
+      }
+    },
+    {
+      "day_number": 2,
+      "is_locked": true,
+      "title": "Building Momentum",
+      "objective": "Create a morning trigger routine that kickstarts your focus",
+      "workout": {
+        "steps": [
+          { "step_number": 1, "title": "Morning Trigger", "description": "Choose a simple action that will signal 'focus time' (e.g., making tea, sitting at your desk).", "duration_minutes": 2 },
+          { "step_number": 2, "title": "Warm-Up Focus", "description": "Start with a 5-minute easy task to build momentum before tackling your main priority.", "duration_minutes": 5 },
+          { "step_number": 3, "title": "Deep Work Block", "description": "Work on your most important task for 10 uninterrupted minutes.", "duration_minutes": 10 },
+          { "step_number": 4, "title": "Momentum Log", "description": "Record what you accomplished and how it felt.", "duration_minutes": 2 }
+        ]
+      },
+      "guided_session": {
+        "total_duration_seconds": 150,
+        "script": [
+          { "type": "text", "content": "Day 2 — Momentum. Yesterday you laid the foundation. Today we build on it.", "duration_seconds": 15 },
+          { "type": "breathing", "content": "Three deep breaths. In through the nose, out through the mouth. Let tension go.", "duration_seconds": 25 },
+          { "type": "text", "content": "Think about a time you were fully absorbed in something. That state is available to you every day.", "duration_seconds": 15 },
+          { "type": "action", "content": "Set up your morning trigger now. What simple action will you do every day to start focus mode?", "duration_seconds": 30 },
+          { "type": "reflection", "content": "Visualize yourself tomorrow morning: doing the trigger, sitting down, starting immediately. See it clearly.", "duration_seconds": 30 },
+          { "type": "text", "content": "Momentum isn't about motivation. It's about removing the decision. You're building that now.", "duration_seconds": 20 },
+          { "type": "text", "content": "Well done. See you on Day 3.", "duration_seconds": 15 }
+        ]
+      }
+    },
+    {
+      "day_number": 3,
+      "is_locked": true,
+      "title": "Distraction Defense",
+      "objective": "Develop strategies to handle interruptions and stay on track",
+      "workout": {
+        "steps": [
+          { "step_number": 1, "title": "Distraction Audit", "description": "Track every interruption for 15 minutes — write down what pulled you away.", "duration_minutes": 3 },
+          { "step_number": 2, "title": "Defense Plan", "description": "For each distraction, create a simple 'if-then' rule (e.g., 'If phone buzzes, then ignore until timer ends').", "duration_minutes": 3 },
+          { "step_number": 3, "title": "Protected Focus Block", "description": "Apply your defense rules during a 10-minute focus session.", "duration_minutes": 10 },
+          { "step_number": 4, "title": "Score Your Defense", "description": "Rate how well your rules worked. Adjust any that failed.", "duration_minutes": 2 }
+        ]
+      },
+      "guided_session": {
+        "total_duration_seconds": 150,
+        "script": [
+          { "type": "text", "content": "Day 3 — Distraction Defense. Your focus is only as strong as your ability to protect it.", "duration_seconds": 15 },
+          { "type": "breathing", "content": "Center yourself. Four breaths: in 4, hold 4, out 6.", "duration_seconds": 30 },
+          { "type": "text", "content": "Distractions aren't random. They follow patterns. Today you learn your patterns.", "duration_seconds": 15 },
+          { "type": "action", "content": "Think of your #1 distraction. Now create one rule to handle it. Keep it simple.", "duration_seconds": 30 },
+          { "type": "reflection", "content": "Imagine using that rule successfully. Feel the satisfaction of staying on track.", "duration_seconds": 30 },
+          { "type": "text", "content": "You don't need perfect discipline. You need a system. That's what you're building.", "duration_seconds": 15 },
+          { "type": "text", "content": "Great work today. Day 4 will push you further.", "duration_seconds": 15 }
+        ]
+      }
+    },
+    {
+      "day_number": 4,
+      "is_locked": true,
+      "title": "Energy Management",
+      "objective": "Align your focus work with your natural energy peaks",
+      "workout": {
+        "steps": [
+          { "step_number": 1, "title": "Energy Mapping", "description": "Note your current energy level (1-5). Think about when you typically feel most alert.", "duration_minutes": 2 },
+          { "step_number": 2, "title": "Peak Alignment", "description": "Schedule your most important task during your high-energy window.", "duration_minutes": 3 },
+          { "step_number": 3, "title": "Micro-Recovery", "description": "Between focus blocks, take a 2-minute recovery (stretch, walk, breathe).", "duration_minutes": 2 },
+          { "step_number": 4, "title": "Extended Focus", "description": "Push your focus block to 12 minutes today.", "duration_minutes": 12 }
+        ]
+      },
+      "guided_session": {
+        "total_duration_seconds": 150,
+        "script": [
+          { "type": "text", "content": "Day 4 — Energy Management. Focus without energy is willpower without fuel.", "duration_seconds": 15 },
+          { "type": "breathing", "content": "Energizing breath: In for 4, out for 4. Faster rhythm. Four cycles.", "duration_seconds": 25 },
+          { "type": "text", "content": "When do you feel most alive during the day? Morning? Afternoon? That's your power window.", "duration_seconds": 15 },
+          { "type": "action", "content": "Right now, commit to protecting your peak energy time tomorrow. Block it. Guard it.", "duration_seconds": 30 },
+          { "type": "text", "content": "Recovery is not laziness. It's strategy. Short breaks between focus blocks restore performance.", "duration_seconds": 20 },
+          { "type": "reflection", "content": "What drains your energy unnecessarily? What's one thing you can stop doing?", "duration_seconds": 30 },
+          { "type": "text", "content": "You're halfway through the week. Your system is taking shape. Keep going.", "duration_seconds": 15 }
+        ]
+      }
+    },
+    {
+      "day_number": 5,
+      "is_locked": true,
+      "title": "Resilience Training",
+      "objective": "Build recovery strategies for when focus breaks down",
+      "workout": {
+        "steps": [
+          { "step_number": 1, "title": "Failure Review", "description": "Think about a recent time you lost focus. What happened? No judgment — just observe.", "duration_minutes": 3 },
+          { "step_number": 2, "title": "Recovery Protocol", "description": "Create a 3-step restart sequence: breathe → re-read priority → begin smallest next action.", "duration_minutes": 3 },
+          { "step_number": 3, "title": "Intentional Interruption", "description": "Set a timer, break focus deliberately, then use your recovery protocol to restart.", "duration_minutes": 5 },
+          { "step_number": 4, "title": "Extended Session", "description": "Complete a 15-minute focus block using your full toolkit.", "duration_minutes": 15 }
+        ]
+      },
+      "guided_session": {
+        "total_duration_seconds": 150,
+        "script": [
+          { "type": "text", "content": "Day 5 — Resilience. Everyone loses focus. The difference is how fast you come back.", "duration_seconds": 15 },
+          { "type": "breathing", "content": "Slow, calming breaths. In for 5, hold for 3, out for 7. Three times.", "duration_seconds": 30 },
+          { "type": "text", "content": "Failure is data, not identity. When you drift, that's information about your system.", "duration_seconds": 15 },
+          { "type": "action", "content": "Practice your restart sequence now: breathe, re-read your priority, begin the smallest step.", "duration_seconds": 30 },
+          { "type": "reflection", "content": "How does it feel to have a plan for failure? That's what separates builders from wishers.", "duration_seconds": 30 },
+          { "type": "text", "content": "You don't need to be perfect. You need to be persistent. Two more days.", "duration_seconds": 15 },
+          { "type": "text", "content": "Excellent work. Day 6 brings integration.", "duration_seconds": 15 }
+        ]
+      }
+    },
+    {
+      "day_number": 6,
+      "is_locked": true,
+      "title": "System Integration",
+      "objective": "Combine all techniques into a personal daily workflow",
+      "workout": {
+        "steps": [
+          { "step_number": 1, "title": "System Design", "description": "Write your complete daily focus routine: trigger → warm-up → deep work → recovery → reflection.", "duration_minutes": 5 },
+          { "step_number": 2, "title": "Full Rehearsal", "description": "Run through your entire routine in a compressed 10-minute version.", "duration_minutes": 10 },
+          { "step_number": 3, "title": "Troubleshoot", "description": "Identify the weakest link in your routine. What's most likely to break?", "duration_minutes": 3 },
+          { "step_number": 4, "title": "Strengthen", "description": "Add one safeguard for your weakest link.", "duration_minutes": 2 }
+        ]
+      },
+      "guided_session": {
+        "total_duration_seconds": 150,
+        "script": [
+          { "type": "text", "content": "Day 6 — Integration. You've learned the pieces. Now we assemble the machine.", "duration_seconds": 15 },
+          { "type": "breathing", "content": "Centered breathing. In 4, hold 4, out 4. Your rhythm, your pace.", "duration_seconds": 25 },
+          { "type": "text", "content": "You have a trigger, a focus method, defense rules, energy awareness, and a recovery protocol.", "duration_seconds": 15 },
+          { "type": "action", "content": "Write your complete routine on one page. Morning to evening. Make it yours.", "duration_seconds": 35 },
+          { "type": "reflection", "content": "Look at what you've built this week. This is your system. It's real and it works.", "duration_seconds": 30 },
+          { "type": "text", "content": "Tomorrow is your graduation day. You'll test the full system. Get ready.", "duration_seconds": 15 },
+          { "type": "text", "content": "Almost there. Day 7 awaits.", "duration_seconds": 15 }
+        ]
+      }
+    },
+    {
+      "day_number": 7,
+      "is_locked": true,
+      "title": "Graduation Day",
+      "objective": "Execute your complete personal system and plan your next week",
+      "workout": {
+        "steps": [
+          { "step_number": 1, "title": "Full System Run", "description": "Execute your complete daily routine from trigger to reflection.", "duration_minutes": 15 },
+          { "step_number": 2, "title": "Week Review", "description": "Review your progress across all 7 days. What improved? What surprised you?", "duration_minutes": 3 },
+          { "step_number": 3, "title": "Next Week Planning", "description": "Set 3 goals for next week based on what you learned.", "duration_minutes": 3 },
+          { "step_number": 4, "title": "Commitment", "description": "Write one sentence: 'I commit to...' and make it specific and achievable.", "duration_minutes": 2 }
+        ]
+      },
+      "guided_session": {
+        "total_duration_seconds": 180,
+        "script": [
+          { "type": "text", "content": "Day 7 — Graduation. You showed up every day. That matters more than you think.", "duration_seconds": 15 },
+          { "type": "breathing", "content": "Deep, proud breaths. You've earned this. In 5, hold 5, out 5. Three times.", "duration_seconds": 30 },
+          { "type": "text", "content": "Seven days ago you started with nothing. Now you have a system built by you, for you.", "duration_seconds": 15 },
+          { "type": "reflection", "content": "What's the biggest change you've noticed this week? In your focus? Your energy? Your mindset?", "duration_seconds": 30 },
+          { "type": "text", "content": "A system only works if you use it. Commit to one more week. Then one more after that.", "duration_seconds": 20 },
+          { "type": "action", "content": "Set a reminder for tomorrow morning. Same time, same place. Continue the routine.", "duration_seconds": 30 },
+          { "type": "text", "content": "This isn't the end — it's the beginning. You've built something real. Now go use it.", "duration_seconds": 20 },
+          { "type": "text", "content": "Congratulations. Program complete.", "duration_seconds": 20 }
+        ]
+      }
+    }
+  ]
+}
