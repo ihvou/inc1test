@@ -9,8 +9,10 @@ import PillButton from "@/components/PillButton";
 import { useAppState } from "@/lib/store";
 
 export default function FullPlanPage() {
-  const { plan, isPremium, progress, setProgressState } = useAppState();
+  const { plan, isPremium, progress, setProgressState, updatePlanState, inputJson } = useAppState();
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
+  const [currentWeek, setCurrentWeek] = useState(1);
+  const [generatingWeek, setGeneratingWeek] = useState(false);
   const router = useRouter();
 
   if (!plan) {
@@ -23,6 +25,11 @@ export default function FullPlanPage() {
     // Still show day 1 in full mode
   }
 
+  const totalWeeks = Math.ceil(plan.days.length / 7);
+  const weekStart = (currentWeek - 1) * 7;
+  const weekDays = plan.days.slice(weekStart, weekStart + 7);
+
+  const totalDays = plan.days.length;
   const completedCount = Object.values(progress.completedDays).filter(Boolean).length;
 
   function markDayDone(dayNum: number) {
@@ -33,9 +40,54 @@ export default function FullPlanPage() {
     setProgressState(updated);
   }
 
+  async function handleGenerateNextWeek() {
+    if (!plan) return;
+    setGeneratingWeek(true);
+    try {
+      const nextWeekNum = totalWeeks + 1;
+      const res = await fetch("/api/generate-next-week", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inputJson,
+          currentPlan: plan,
+          weekNumber: nextWeekNum,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to generate next week");
+
+      const data = await res.json();
+      if (data.days && Array.isArray(data.days)) {
+        // Append new days to existing plan
+        const updatedPlan = {
+          ...plan!,
+          days: [...plan!.days, ...data.days],
+        };
+        updatePlanState(updatedPlan);
+
+        // Initialize progress for new days
+        const updatedProgress = { ...progress };
+        data.days.forEach((d: { day_number: number }) => {
+          if (!(String(d.day_number) in updatedProgress.completedDays)) {
+            updatedProgress.completedDays[String(d.day_number)] = false;
+          }
+        });
+        setProgressState(updatedProgress);
+
+        // Navigate to the new week
+        setCurrentWeek(nextWeekNum);
+      }
+    } catch (err) {
+      console.error("Failed to generate next week:", err);
+    } finally {
+      setGeneratingWeek(false);
+    }
+  }
+
   return (
     <ScreenShell>
-      <TopBar onBack={() => router.push("/plan")} />
+      <TopBar onBack={() => router.push("/")} />
 
       {/* Header */}
       <div className="mb-4">
@@ -47,19 +99,29 @@ export default function FullPlanPage() {
       <div className="bg-surface rounded-2xl border border-border p-4 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-semibold text-foreground">Progress</span>
-          <span className="text-sm text-gold font-bold">{completedCount}/7</span>
+          <span className="text-sm text-gold font-bold">{completedCount}/{totalDays}</span>
         </div>
         <div className="w-full bg-surface-light rounded-full h-2.5 overflow-hidden">
           <div
             className="h-full bg-gold rounded-full transition-all duration-500"
-            style={{ width: `${(completedCount / 7) * 100}%` }}
+            style={{ width: `${(completedCount / totalDays) * 100}%` }}
           />
         </div>
       </div>
 
+      {/* Week header */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-muted uppercase tracking-wider">
+          Week {currentWeek}
+        </h2>
+        <span className="text-xs text-muted">
+          Days {weekStart + 1}–{Math.min(weekStart + 7, plan.days.length)}
+        </span>
+      </div>
+
       {/* Days list */}
       <div className="space-y-3">
-        {plan.days.map((day) => {
+        {weekDays.map((day) => {
           const isCompleted = progress.completedDays[String(day.day_number)] === true;
           const isExpanded = expandedDay === day.day_number;
           const checkin = progress.checkins[String(day.day_number)];
@@ -174,6 +236,50 @@ export default function FullPlanPage() {
             </Card>
           );
         })}
+      </div>
+
+      {/* Week pagination */}
+      <div className="mt-6 mb-4">
+        <div className="flex items-center justify-center gap-2">
+          {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((week) => (
+            <button
+              key={week}
+              onClick={() => {
+                setCurrentWeek(week);
+                setExpandedDay(null);
+              }}
+              className={`w-9 h-9 rounded-full text-sm font-semibold transition-all ${
+                currentWeek === week
+                  ? "bg-gold text-black"
+                  : "bg-surface border border-border text-muted hover:text-foreground hover:border-gold/50"
+              }`}
+            >
+              {week}
+            </button>
+          ))}
+
+          {/* Next week button */}
+          <button
+            onClick={handleGenerateNextWeek}
+            disabled={generatingWeek}
+            className="w-9 h-9 rounded-full bg-surface border border-border border-dashed text-muted hover:text-gold hover:border-gold/50 flex items-center justify-center transition-all disabled:opacity-50"
+          >
+            {generatingWeek ? (
+              <span className="w-4 h-4 border-2 border-muted/30 border-t-gold rounded-full animate-spin" />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {generatingWeek && (
+          <p className="text-xs text-gold text-center mt-2 animate-pulse">
+            Generating Week {totalWeeks + 1}...
+          </p>
+        )}
       </div>
 
       <div className="h-6" />

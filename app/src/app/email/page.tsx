@@ -16,7 +16,7 @@ export default function EmailPage() {
   function handleSubmit() {
     if (isValid) {
       setEmailState(email);
-      router.push("/plan");
+      router.push("/paywall");
     }
   }
 
@@ -32,7 +32,7 @@ export default function EmailPage() {
         </div>
 
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Enter your email to get<br />detailed test results
+          Enter your email to get access<br />to Personalized program anytime
         </h1>
         <p className="text-sm text-muted mb-8">
           We&apos;ll save your personalized plan so you can access it anytime.
@@ -63,15 +63,8 @@ export default function EmailPage() {
         </div>
 
         <PillButton onClick={handleSubmit} disabled={!isValid}>
-          Explore results
+          Explore program
         </PillButton>
-
-        <button
-          onClick={() => router.push("/plan")}
-          className="text-sm text-muted hover:text-foreground mt-4 transition-colors"
-        >
-          Skip for now
-        </button>
       </div>
     </ScreenShell>
   );

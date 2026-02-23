@@ -39,7 +39,7 @@ export default function DevHarness() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { setPlan, resetState } = useAppState();
+  const { setPlan, setInputJsonState, resetState } = useAppState();
 
   async function handleGenerate() {
     setError("");
@@ -68,6 +68,7 @@ export default function DevHarness() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
+      setInputJsonState(parsed);
       setPlan(data);
       router.push("/preview");
     } catch (err) {
@@ -135,7 +136,6 @@ export default function DevHarness() {
         </PillButton>
       </div>
 
-      <p className="text-xs text-muted text-center mt-4">Prototype — Dev Harness</p>
     </ScreenShell>
   );
 }

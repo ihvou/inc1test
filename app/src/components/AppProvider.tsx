@@ -7,13 +7,16 @@ import {
   getProgress,
   getEmail,
   getIsPremium,
+  getInputJson,
   savePlan as storeSavePlan,
+  updatePlan as storeUpdatePlan,
   setProgress as storeSetProgress,
   setEmail as storeSetEmail,
   setIsPremium as storeSetIsPremium,
+  saveInputJson as storeSaveInputJson,
   resetAll,
 } from "@/lib/store";
-import type { GymPersonalizedPlan, ProgressState } from "@/lib/types";
+import type { GymPersonalizedPlan, ProgressState, InputJSON } from "@/lib/types";
 
 export default function AppProvider({ children }: { children: React.ReactNode }) {
   const [plan, setPlanLocal] = useState<GymPersonalizedPlan | null>(null);
@@ -24,6 +27,7 @@ export default function AppProvider({ children }: { children: React.ReactNode })
     lastOpenedDay: 1,
   });
   const [email, setEmailLocal] = useState("");
+  const [inputJson, setInputJsonLocal] = useState<InputJSON | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -31,11 +35,17 @@ export default function AppProvider({ children }: { children: React.ReactNode })
     setIsPremiumLocal(getIsPremium());
     setProgressLocal(getProgress());
     setEmailLocal(getEmail());
+    setInputJsonLocal(getInputJson());
     setMounted(true);
   }, []);
 
   const setPlan = useCallback((p: GymPersonalizedPlan) => {
     storeSavePlan(p);
+    setPlanLocal(p);
+  }, []);
+
+  const updatePlanState = useCallback((p: GymPersonalizedPlan) => {
+    storeUpdatePlan(p);
     setPlanLocal(p);
   }, []);
 
@@ -54,12 +64,18 @@ export default function AppProvider({ children }: { children: React.ReactNode })
     setEmailLocal(e);
   }, []);
 
+  const setInputJsonState = useCallback((j: InputJSON) => {
+    storeSaveInputJson(j);
+    setInputJsonLocal(j);
+  }, []);
+
   const resetState = useCallback(() => {
     resetAll();
     setPlanLocal(null);
     setIsPremiumLocal(false);
     setProgressLocal({ completedDays: {}, checkins: {}, lastOpenedDay: 1 });
     setEmailLocal("");
+    setInputJsonLocal(null);
   }, []);
 
   if (!mounted) {
@@ -72,7 +88,10 @@ export default function AppProvider({ children }: { children: React.ReactNode })
 
   return (
     <AppContext.Provider
-      value={{ plan, isPremium, progress, email, setPlan, setIsPremiumState, setProgressState, setEmailState, resetState }}
+      value={{
+        plan, isPremium, progress, email, inputJson,
+        setPlan, updatePlanState, setIsPremiumState, setProgressState, setEmailState, setInputJsonState, resetState,
+      }}
     >
       {children}
     </AppContext.Provider>
