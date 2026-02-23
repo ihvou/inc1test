@@ -2,12 +2,20 @@ import { NextResponse } from "next/server";
 import fallbackPlan from "@/lib/fallback-plan.json";
 import type { GymPersonalizedPlan, InputJSON } from "@/lib/types";
 
+const LLM_TIMEOUT_MS = 20000;
+
 function parseTimeBudget(raw: string): number {
   if (raw.includes("5") && raw.includes("10")) return 10;
   if (raw.includes("10") && raw.includes("15")) return 15;
   if (raw.includes("15") && raw.includes("20")) return 20;
   if (raw.includes("20") || raw.includes("30")) return 30;
   return 15;
+}
+
+function getMockPlan(timeBudget: number): GymPersonalizedPlan {
+  const plan = JSON.parse(JSON.stringify(fallbackPlan)) as GymPersonalizedPlan;
+  plan.program.time_budget_minutes = timeBudget;
+  return plan;
 }
 
 function mapChallenges(challenges: string[]): string {
@@ -44,15 +52,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required answer fields" }, { status: 400 });
     }
 
+    const timeBudget = parseTimeBudget(body.answers.gym_24_time_invest_daily);
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      // No API key — return fallback plan with adjusted time budget
-      const plan = JSON.parse(JSON.stringify(fallbackPlan)) as GymPersonalizedPlan;
-      plan.program.time_budget_minutes = parseTimeBudget(body.answers.gym_24_time_invest_daily);
-      return NextResponse.json(plan);
+      // No API key — return mocked fallback plan.
+      return NextResponse.json(getMockPlan(timeBudget));
     }
 
-    const timeBudget = parseTimeBudget(body.answers.gym_24_time_invest_daily);
     const challengeFocus = mapChallenges(body.answers.gym_25_challenges);
     const coachingTone = mapCoachingTone(body.answers.gym_26_when_fail);
 
@@ -87,33 +93,48 @@ Rules:
 - Make content specific, actionable, and progressive
 - Return ONLY valid JSON`;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        temperature: 0.3,
-        max_tokens: 4096,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
 
-    if (!response.ok) {
-      console.error("OpenAI API error:", response.status);
-      const plan = JSON.parse(JSON.stringify(fallbackPlan)) as GymPersonalizedPlan;
-      plan.program.time_budget_minutes = timeBudget;
-      return NextResponse.json(plan);
+    let text = "";
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          temperature: 0.3,
+          max_tokens: 4096,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        console.error("OpenAI API error:", response.status);
+        return NextResponse.json(getMockPlan(timeBudget));
+      }
+
+      const llmResult = await response.json();
+      text = llmResult.choices?.[0]?.message?.content || "";
+    } catch (err) {
+      console.error("OpenAI API request failed or timed out:", err);
+      return NextResponse.json(getMockPlan(timeBudget));
+    } finally {
+      clearTimeout(timeout);
     }
 
-    const llmResult = await response.json();
-    const text = llmResult.choices?.[0]?.message?.content || "";
+    if (!text.trim()) {
+      console.error("OpenAI API returned empty content");
+      return NextResponse.json(getMockPlan(timeBudget));
+    }
 
     // Extract JSON from response (handle potential markdown wrapping)
     let jsonStr = text;
@@ -127,21 +148,17 @@ Rules:
       plan = JSON.parse(jsonStr.trim());
     } catch {
       console.error("Failed to parse LLM JSON output");
-      const fb = JSON.parse(JSON.stringify(fallbackPlan)) as GymPersonalizedPlan;
-      fb.program.time_budget_minutes = timeBudget;
-      return NextResponse.json(fb);
+      return NextResponse.json(getMockPlan(timeBudget));
     }
 
     if (!validatePlanShape(plan)) {
       console.error("LLM output failed shape validation");
-      const fb = JSON.parse(JSON.stringify(fallbackPlan)) as GymPersonalizedPlan;
-      fb.program.time_budget_minutes = timeBudget;
-      return NextResponse.json(fb);
+      return NextResponse.json(getMockPlan(timeBudget));
     }
 
     return NextResponse.json(plan);
   } catch (error) {
     console.error("Plan generation error:", error);
-    return NextResponse.json(fallbackPlan);
+    return NextResponse.json(getMockPlan(15));
   }
 }

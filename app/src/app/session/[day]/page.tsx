@@ -22,7 +22,7 @@ export default function SessionPage() {
   }
 
   if (dayNum > 1 && !isPremium) {
-    router.push("/paywall");
+    router.push("/email");
     return null;
   }
 

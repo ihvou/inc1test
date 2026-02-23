@@ -135,7 +135,7 @@ export default function FullPlanPage() {
                   if (canAccess) {
                     setExpandedDay(isExpanded ? null : day.day_number);
                   } else {
-                    router.push("/paywall");
+                    router.push("/email");
                   }
                 }}
                 className="w-full p-4 flex items-center gap-3 text-left"

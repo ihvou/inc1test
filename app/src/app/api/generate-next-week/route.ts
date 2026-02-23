@@ -1,11 +1,90 @@
 import { NextResponse } from "next/server";
 import type { GymPersonalizedPlan, PlanDay } from "@/lib/types";
 
+const LLM_TIMEOUT_MS = 20000;
+
 function validateDaysShape(data: unknown): data is { days: PlanDay[] } {
   if (!data || typeof data !== "object") return false;
   const obj = data as Record<string, unknown>;
   if (!Array.isArray(obj.days) || obj.days.length !== 7) return false;
   return true;
+}
+
+function buildMockNextWeekDays(weekNumber: number, timeBudgetMinutes: number): PlanDay[] {
+  const startDay = (weekNumber - 1) * 7 + 1;
+  const themes = [
+    "Momentum Reset",
+    "Focus Training",
+    "Distraction Defense",
+    "Energy Management",
+    "Confidence Stack",
+    "Consistency Sprint",
+    "Review and Scale",
+  ];
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const dayNum = startDay + i;
+    const deepPracticeMinutes = Math.max(8, timeBudgetMinutes - 5);
+
+    return {
+      day_number: dayNum,
+      is_locked: false,
+      title: `Day ${dayNum} — ${themes[i]}`,
+      objective: `Build on Week ${weekNumber - 1} by reinforcing ${themes[i].toLowerCase()} with practical routines.`,
+      workout: {
+        steps: [
+          {
+            step_number: 1,
+            title: "Review Yesterday",
+            description: "Capture one win and one blocker from your previous day.",
+            duration_minutes: 3,
+          },
+          {
+            step_number: 2,
+            title: "Deep Practice",
+            description: "Run a focused block with one concrete outcome and no multitasking.",
+            duration_minutes: deepPracticeMinutes,
+          },
+          {
+            step_number: 3,
+            title: "Reflect and Adjust",
+            description: "Write one adjustment that improves tomorrow's execution.",
+            duration_minutes: 2,
+          },
+        ],
+      },
+      guided_session: {
+        total_duration_seconds: 120,
+        script: [
+          {
+            type: "text",
+            content: `Welcome to Day ${dayNum}. Today is about ${themes[i].toLowerCase()}.`,
+            duration_seconds: 15,
+          },
+          {
+            type: "breathing",
+            content: "Inhale for 4, hold for 4, exhale for 6. Repeat three cycles.",
+            duration_seconds: 25,
+          },
+          {
+            type: "reflection",
+            content: "What single behavior matters most today?",
+            duration_seconds: 20,
+          },
+          {
+            type: "action",
+            content: "Take the smallest meaningful action now and complete it.",
+            duration_seconds: 35,
+          },
+          {
+            type: "text",
+            content: "Great work. Keep the rhythm and return tomorrow.",
+            duration_seconds: 25,
+          },
+        ],
+      },
+    };
+  });
 }
 
 export async function POST(request: Request) {
@@ -17,41 +96,14 @@ export async function POST(request: Request) {
       weekNumber: number;
     };
 
-    if (!inputJson || !currentPlan || !weekNumber) {
+    if (!inputJson || !currentPlan || typeof weekNumber !== "number") {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const mockDays = buildMockNextWeekDays(weekNumber, currentPlan.program.time_budget_minutes);
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      // Fallback: generate deterministic next-week days
-      const fallbackDays: PlanDay[] = Array.from({ length: 7 }, (_, i) => {
-        const dayNum = (weekNumber - 1) * 7 + i + 1;
-        return {
-          day_number: dayNum,
-          is_locked: false,
-          title: `Day ${dayNum} — Advanced Practice`,
-          objective: `Build on Week ${weekNumber - 1} foundations with deeper focus techniques`,
-          workout: {
-            steps: [
-              { step_number: 1, title: "Review & Reset", description: "Review your progress from the previous week and set new intentions.", duration_minutes: 3 },
-              { step_number: 2, title: "Deep Practice", description: "Apply your refined system with increased challenge and duration.", duration_minutes: Math.max(10, currentPlan.program.time_budget_minutes - 5) },
-              { step_number: 3, title: "Reflect & Plan", description: "Note what worked and adjust your approach for tomorrow.", duration_minutes: 2 },
-            ],
-          },
-          guided_session: {
-            total_duration_seconds: 120,
-            script: [
-              { type: "text" as const, content: `Welcome to Day ${dayNum}. You're in Week ${weekNumber} now — this is where real transformation happens.`, duration_seconds: 15 },
-              { type: "breathing" as const, content: "Center yourself. Deep breath in for 4... hold for 4... release for 6.", duration_seconds: 25 },
-              { type: "text" as const, content: "Think about what you learned last week. What's one thing you want to do differently?", duration_seconds: 20 },
-              { type: "action" as const, content: "Take that one improvement and apply it right now. Start with the smallest possible step.", duration_seconds: 30 },
-              { type: "reflection" as const, content: "How does it feel to be building on a real system? You're not starting over — you're leveling up.", duration_seconds: 20 },
-              { type: "text" as const, content: "Keep the momentum going. See you next session.", duration_seconds: 10 },
-            ],
-          },
-        };
-      });
-      return NextResponse.json({ days: fallbackDays });
+      return NextResponse.json({ days: mockDays });
     }
 
     const startDay = (weekNumber - 1) * 7 + 1;
@@ -98,31 +150,48 @@ Rules:
 - Make content specific, actionable, and progressive
 - Return ONLY valid JSON`;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        temperature: 0.3,
-        max_tokens: 4096,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
 
-    if (!response.ok) {
-      console.error("OpenAI API error:", response.status);
-      return NextResponse.json({ error: "LLM generation failed" }, { status: 500 });
+    let text = "";
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          temperature: 0.3,
+          max_tokens: 4096,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        console.error("OpenAI API error:", response.status);
+        return NextResponse.json({ days: mockDays });
+      }
+
+      const llmResult = await response.json();
+      text = llmResult.choices?.[0]?.message?.content || "";
+    } catch (err) {
+      console.error("OpenAI API request failed or timed out:", err);
+      return NextResponse.json({ days: mockDays });
+    } finally {
+      clearTimeout(timeout);
     }
 
-    const llmResult = await response.json();
-    const text = llmResult.choices?.[0]?.message?.content || "";
+    if (!text.trim()) {
+      console.error("OpenAI API returned empty content for next week");
+      return NextResponse.json({ days: mockDays });
+    }
 
     let jsonStr = text;
     const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -133,17 +202,17 @@ Rules:
       result = JSON.parse(jsonStr.trim());
     } catch {
       console.error("Failed to parse next-week JSON output");
-      return NextResponse.json({ error: "Failed to parse LLM output" }, { status: 500 });
+      return NextResponse.json({ days: mockDays });
     }
 
     if (!validateDaysShape(result)) {
       console.error("Next-week output failed shape validation");
-      return NextResponse.json({ error: "Invalid LLM output shape" }, { status: 500 });
+      return NextResponse.json({ days: mockDays });
     }
 
     return NextResponse.json(result);
   } catch (error) {
     console.error("Next week generation error:", error);
-    return NextResponse.json({ error: "Generation failed" }, { status: 500 });
+    return NextResponse.json({ days: buildMockNextWeekDays(2, 15) });
   }
 }

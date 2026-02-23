@@ -19,7 +19,7 @@ export default function PlanPage() {
     if (dayNum === 1 || isPremium) {
       router.push("/plan/full");
     } else {
-      router.push("/paywall");
+      router.push("/email");
     }
   }
 

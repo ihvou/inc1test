@@ -32,7 +32,7 @@ export default function EmailPage() {
         </div>
 
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Enter your email to get access<br />to Personalized program anytime
+          Enter your email to access Personalized program
         </h1>
         <p className="text-sm text-muted mb-8">
           We&apos;ll save your personalized plan so you can access it anytime.
