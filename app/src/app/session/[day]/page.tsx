@@ -28,7 +28,7 @@ export default function SessionPage() {
 
   const day = plan.days.find((d) => d.day_number === dayNum);
   if (!day) {
-    router.push("/plan");
+    router.push("/plan/full");
     return null;
   }
 
@@ -57,7 +57,7 @@ export default function SessionPage() {
 
   return (
     <ScreenShell>
-      <TopBar onBack={() => router.push(isPremium ? "/plan/full" : "/plan")} />
+      <TopBar onBack={() => router.push("/plan/full")} />
 
       <div className="mb-4">
         <div className="text-xs text-muted uppercase tracking-wider mb-1">Day {dayNum}</div>
@@ -92,7 +92,7 @@ export default function SessionPage() {
             Day {dayNum} is done. Your progress has been saved.
           </p>
           <button
-            onClick={() => router.push(isPremium ? "/plan/full" : "/plan")}
+            onClick={() => router.push("/plan/full")}
             className="text-gold font-semibold hover:underline"
           >
             Back to Plan

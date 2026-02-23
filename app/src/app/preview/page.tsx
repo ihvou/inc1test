@@ -21,17 +21,9 @@ export default function PreviewPage() {
   return (
     <ScreenShell
       bottomSlot={
-        <div className="flex flex-col gap-2">
-          <PillButton onClick={() => router.push("/email")}>
-            Save & Continue
-          </PillButton>
-          <button
-            onClick={() => router.push("/plan")}
-            className="text-sm text-muted hover:text-foreground text-center py-2 transition-colors"
-          >
-            Continue without email
-          </button>
-        </div>
+        <PillButton onClick={() => router.push("/email")}>
+          Save & Continue
+        </PillButton>
       }
     >
       {/* Header */}

@@ -17,7 +17,7 @@ export default function PaywallPage() {
 
   function handleContinue() {
     setIsPremiumState(true);
-    router.push("/plan/full");
+    router.push("/checkout");
   }
 
   return (
