@@ -1,9 +1,8 @@
-````md
 # MVP Spec — Personalized Plan + Today’s Session (Gym-style Web Prototype)
 
-Owner: You  
-Implementers: Claude + Codex  
-Platform: Web (mobile-first), runs locally, **no database** (state in `localStorage`)  
+Owner: You
+Implementers: Claude + Codex
+Platform: Web (mobile-first), runs locally, **no database** (state in `localStorage`)
 Goal: Demonstrate **core logic + UX** of a “personalized program” funnel: value preview → email save → locked plan → paywall imitation → full unlocked plan.
 
 ---
@@ -11,12 +10,13 @@ Goal: Demonstrate **core logic + UX** of a “personalized program” funnel: va
 ## 1) What we are building
 
 A mobile-first web app that:
-1) Accepts Gym-funnel answers (as JSON) via a dev harness form.
-2) Calls a Large Language Model (LLM) to generate a structured **7-day plan**.
-3) Shows **Day 1** immediately (value first).
-4) Optionally asks email to “save your plan”.
-5) Shows Days 2–7 locked; tapping locked days opens a paywall imitation.
-6) After “Continue” on paywall (no real payment), unlocks full plan and enables “session player” + completion + check-in, stored locally.
+
+1. Accepts Gym-funnel answers (as JSON) via a dev harness form.
+2. Calls a Large Language Model (LLM) to generate a structured **7-day plan**.
+3. Shows **Day 1** immediately (value first).
+4. Optionally asks email to “save your plan”.
+5. Shows Days 2–7 locked; tapping locked days opens a paywall imitation.
+6. After “Continue” on paywall (no real payment), unlocks full plan and enables “session player” + completion + check-in, stored locally.
 
 This aligns with the key funnel insight: users convert better when the paid offer is **concrete** (“your program is ready”) and when they can see value before committing.
 
@@ -24,69 +24,83 @@ This aligns with the key funnel insight: users convert better when the paid offe
 
 ## 2) Non-functional requirements
 
-- **Mobile-first** UI (max content width ~420px).
-- Runs locally: `npm install && npm run dev`.
-- No DB: use `localStorage` only.
-- No external auth.
-- LLM key stored in `.env.local` (never hardcode).
-- If LLM is unavailable, use a bundled fallback plan JSON.
+* **Mobile-first** UI (max content width ~420px).
+* Runs locally: `npm install && npm run dev`.
+* No DB: use `localStorage` only.
+* No external auth.
+* LLM key stored in `.env.local` (never hardcode).
+* If LLM is unavailable, use a bundled fallback plan JSON.
 
 ---
 
 ## 3) UX flow (final)
 
 ### Route map
-- `/` — Dev harness (paste JSON answers + “Generate Plan”)
-- `/preview` — Day 1 value preview (unlocked)
-- `/email` — Email capture (optional “save plan” step)
-- `/plan` — Plan week view (Days 1–7; Days 2–7 locked if not premium)
-- `/paywall` — Paywall imitation (Gym-style)
-- `/plan/full` — Full interactive plan (premium unlocked)
-- `/session/:day` — Guided session player for Day N
+
+* `/` — Dev harness (paste JSON answers + “Generate Plan”)
+* `/preview` — Day 1 value preview (unlocked)
+* `/email` — Email capture (optional “save plan” step)
+* `/plan` — Plan week view (Days 1–7; Days 2–7 locked if not premium)
+* `/paywall` — Paywall imitation (Gym-style)
+* `/plan/full` — Full interactive plan (premium unlocked)
+* `/session/:day` — Guided session player for Day N
 
 ### User journey
-1) `/` submit JSON → app generates plan via LLM → store in local state → `/preview`
-2) `/preview` shows:
-   - program title, 3 insights
-   - Day 1 objective + steps
-   - “Start Today’s Session”
-   - CTA: “Save & Continue” → `/email` (optional) or “Continue without email”
-3) `/email`:
-   - email input + privacy line + CTA → store email → `/plan`
-4) `/plan`:
-   - Days list 1..7
-   - Day 1 open, Days 2–7 locked (blur overlay)
-   - tapping locked day opens `/paywall`
-5) `/paywall`:
-   - pricing cards, continue button
-   - on continue: set `isPremium=true` → `/plan/full`
-6) `/plan/full`:
-   - all days unlocked
-   - “Start session” for any day
-   - “Mark day done” + check-in
-7) `/session/:day`:
-   - plays scripted blocks (manual next or timed)
-   - post-check-in + save → back to plan
+
+1. `/` submit JSON → app generates plan via LLM → store in local state → `/preview`
+2. `/preview` shows:
+
+   * program title, 3 insights
+   * Day 1 objective + steps
+   * “Start Today’s Session”
+   * CTA: “Save & Continue” → `/email` (optional) or “Continue without email”
+3. `/email`:
+
+   * email input + privacy line + CTA → store email → `/plan`
+4. `/plan`:
+
+   * Days list 1..7
+   * Day 1 open, Days 2–7 locked (blur overlay)
+   * tapping locked day opens `/paywall`
+5. `/paywall`:
+
+   * pricing cards, continue button
+   * on continue: set `isPremium=true` → `/plan/full`
+6. `/plan/full`:
+
+   * all days unlocked
+   * “Start session” for any day
+   * “Mark day done” + check-in
+7. `/session/:day`:
+
+   * plays scripted blocks (manual next or timed)
+   * post-check-in + save → back to plan
 
 ---
 
 ## 4) Data model and storage (no DB)
 
 ### Local storage keys
-- `mvp_plan_json` — entire plan JSON returned by LLM (stringified)
-- `mvp_plan_meta` — `{ planId, createdAtIso }`
-- `mvp_email` — string or `""`
-- `mvp_is_premium` — `"true"` / `"false"`
-- `mvp_progress` — progress state:
-  ```json
-  {
-    "completedDays": { "1": true, "2": false, ... },
-    "checkins": {
-      "1": { "pre": 3, "post": 2, "note": "..." }
-    },
-    "lastOpenedDay": 1
-  }
-````
+
+* `mvp_plan_json` — entire plan JSON returned by LLM (stringified)
+* `mvp_plan_meta` — `{ planId, createdAtIso }`
+* `mvp_email` — string or `""`
+* `mvp_is_premium` — `"true"` / `"false"`
+* `mvp_progress` — progress state:
+
+  * `completedDays`: map of day number to boolean
+  * `checkins`: map of day number to `{ pre, post, note }`
+  * `lastOpenedDay`: number
+
+Example `mvp_progress`:
+
+```json
+{
+  "completedDays": { "1": true, "2": false, "3": false, "4": false, "5": false, "6": false, "7": false },
+  "checkins": { "1": { "pre": 3, "post": 2, "note": "Felt calmer after session" } },
+  "lastOpenedDay": 1
+}
+```
 
 ### In-memory state (React)
 
@@ -110,7 +124,7 @@ This aligns with the key funnel insight: users convert better when the paid offe
 
 ## 5) Input JSON for the generator
 
-We only rely on confirmed Gym funnel question structure when possible, but the dev harness may include additional fields. For MVP, the minimum required fields:
+Minimum required fields:
 
 ```json
 {
@@ -123,7 +137,7 @@ We only rely on confirmed Gym funnel question structure when possible, but the d
 }
 ```
 
-The app should accept any JSON; validate required fields and show error if missing.
+The app should accept any JSON; validate required fields and show a clear error if missing.
 
 ---
 
@@ -144,7 +158,7 @@ Minimum requirements:
   * `guided_session` with script blocks totaling ~90–240 seconds
   * `fallback`
 
-(Use the schema previously agreed, or keep it in `schemas/plan-output.json`.)
+Store schema at `schemas/plan-output.json` and (optionally) validate server-side.
 
 ---
 
@@ -249,13 +263,7 @@ We mimic the Gym funnel style:
 
 ### Design tokens (CSS variables)
 
-(Use the token set in `styles/tokens.css`.)
-
-Key tokens:
-
-* `--bg`, `--surface-1/2/3`
-* `--text`, `--text-muted`, `--text-dim`
-* `--gold`, `--gold-soft`, `--green-tag`
+Put tokens in `styles/tokens.css` (see previous token set).
 
 ---
 
@@ -285,7 +293,7 @@ Key tokens:
 
 5. `SelectableCard`
 
-   * selected state flips background to gold-soft + dark text (for list options)
+   * selected state flips background to gold-soft + dark text
 
 6. `PricingCard`
 
@@ -367,7 +375,7 @@ Purpose: show real value before email/paywall
 
 ### `/paywall` Paywall imitation (close to Gym)
 
-* Mini chart card at top (static)
+* Mini chart card at top (static SVG)
 * Headline: “Your custom program is ready to start!”
 * Three pricing cards:
 
@@ -506,4 +514,3 @@ Build reusable components:
 
 ---
 
-````
